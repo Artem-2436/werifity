@@ -8,7 +8,7 @@
     html, body { height: auto !important; overflow-y: auto !important; }
 :root{--bg:#0a0b10;--s:rgba(255,255,255,.03);--b:rgba(255,255,255,.08);--a:#ff5a2c;--t:#0fb3a6;--w:#fff;--m:#8b9bb4}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}
-body{background:var(--bg);color:var(--w);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
+body{background:var(--bg);color:var(--w);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;overflow-y:auto;} /* Добавлено overflow-y:auto */
 .bg-mesh{position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 20% 30%,#1a1f35,transparent 40%),radial-gradient(circle at 80% 70%,#2d1b1b,transparent 40%);filter:blur(80px);opacity:.6;animation:f 20s infinite alternate ease-in-out}
 @keyframes f{0%{transform:translate(0,0)}100%{transform:translate(-20px,20px)}}
 .cont{max-width:500px;width:100%;padding:20px;text-align:center}
