@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Xcortex | Admin Verify</title>
+<!-- Подключаем библиотеку для генерации QR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{--bg:#0a0b10;--s:rgba(255,255,255,.03);--b:rgba(255,255,255,.08);--a:#ff5a2c;--t:#0fb3a6;--w:#fff;--m:#8b9bb4}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',system-ui,sans-serif}
@@ -30,11 +32,19 @@ h1 span{color:var(--a)}
 .h-date{font-size:.75rem;color:var(--m)}
 .h-status{font-size:.7rem;padding:2px 8px;border-radius:10px;font-weight:700;text-transform:uppercase}
 .st-ok{background:rgba(15,179,166,.15);color:var(--t)}
-.st-pend{background:rgba(255,215,0,.15);color:#ffd700}
 .del-btn{background:none;border:none;color:#f44;cursor:pointer;opacity:.5;font-size:1.2rem;padding:5px}
 .del-btn:hover{opacity:1}
 
-/* Modal */
+/* Modal Overlay for QR Code */
+.qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;display:none;justify-content:center;align-items:center;flex-direction:column;backdrop-filter:blur(10px)}
+.qr-overlay.active{display:flex}
+.qr-card{background:#fff;padding:20px;border-radius:15px;box-shadow:0 0 50px rgba(255,255,255,.2);margin-bottom:20px}
+.qr-label{color:#fff;font-size:1.2rem;margin-bottom:10px;text-align:center}
+.qr-code-val{font-family:monospace;font-size:2rem;color:var(--a);letter-spacing:5px;margin-bottom:20px;text-shadow:0 0 10px rgba(255,90,44,.5)}
+.btn-white{background:#fff;color:#000;border:none;padding:15px 30px;border-radius:10px;font-weight:700;cursor:pointer;font-size:1rem;transition:.2s}
+.btn-white:hover{transform:scale(1.05)}
+
+/* Standard Modal Styles (from previous version) */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:1000;display:none;justify-content:center;align-items:center;opacity:0;transition:.3s}
 .modal-overlay.active{display:flex;opacity:1}
 .modal-card{width:90%;max-width:400px;background:linear-gradient(180deg,#1e2029,#15161c);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:30px;transform:scale(.95);transition:.3s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 20px 50px rgba(0,0,0,.5)}
@@ -42,28 +52,26 @@ h1 span{color:var(--a)}
 .m-header{margin-bottom:20px;text-align:center}
 .m-title{font-size:1.2rem;font-weight:700;color:var(--w)}
 .m-sub{font-size:.8rem;color:var(--m);margin-top:5px}
-
 .input-group{margin-bottom:15px}
 .label{display:block;font-size:.8rem;color:var(--m);margin-bottom:5px;text-transform:uppercase}
 .input{width:100%;background:rgba(0,0,0,.2);border:1px solid var(--b);color:#fff;padding:12px;border-radius:10px;outline:none;font-size:1rem}
 .input:focus{border-color:var(--t)}
-
 .btn-row{display:flex;gap:10px;margin-top:20px}
 .btn{flex:1;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;transition:.2s;font-size:.9rem}
 .btn-primary{background:var(--t);color:#000}
 .btn-primary:hover{background:#0dc4b6}
 .btn-secondary{background:rgba(255,255,255,.05);color:var(--w);border:1px solid var(--b)}
 .btn-secondary:hover{background:rgba(255,255,255,.1)}
-.btn-danger{background:rgba(255,68,68,.1);color:#f44;border:1px solid rgba(255,68,68,.2)}
-.btn-danger:hover{background:rgba(255,68,68,.2)}
+.btn-accent{background:var(--a);color:#fff} /* New button style for QR generation */
+.btn-accent:hover{background:#ff7e5f}
 
 /* Steps inside modal */
 .step-send, .step-verify { display: none; }
 .step-send.active, .step-verify.active { display: block; animation: fadeIn .3s; }
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-
-.code-display-demo{font-family:monospace;font-size:1.5rem;color:var(--a);text-align:center;margin:15px 0;letter-spacing:2px}
 .info-text{font-size:.8rem;color:var(--m);text-align:center;line-height:1.4;margin-bottom:15px}
+.success-msg{color:var(--t);font-size:.9rem;margin-top:10px;display:none;text-align:center}
+.error-msg{color:#f44;font-size:.9rem;margin-top:10px;display:none;text-align:center}
 </style>
 </head>
 <body>
@@ -77,53 +85,50 @@ h1 span{color:var(--a)}
     <button class="main-btn" onclick="openModal()">🛡 Верифицировать Клиента</button>
 
     <div class="history-title">История Верификаций</div>
-    <div id="hist-list" class="hist-list">
-        <!-- Items injected by JS -->
-    </div>
+    <div id="hist-list" class="hist-list"></div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL: MAIN VERIFICATION FLOW -->
 <div class="modal-overlay" id="verify-modal">
     <div class="modal-card">
         <div class="m-header">
             <div class="m-title">Новая Проверка</div>
-            <div class="m-sub">Шаг 1: Данные клиента</div>
+            <div class="m-sub" id="modal-subtext">Шаг 1: Данные клиента</div>
         </div>
 
-        <!-- STEP 1: SEND CODE -->
+        <!-- STEP 1: INPUT EMAIL & ACTIONS -->
         <div id="step-1" class="step-send active">
             <div class="input-group">
                 <label class="label">Email клиента</label>
                 <input type="email" id="client-email" class="input" placeholder="user@example.com">
             </div>
+            
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn btn-accent" style="flex:1" onclick="generateAndShowQR()">📱 Сгенерировать QR</button>
+                <button class="btn btn-secondary" style="flex:1" onclick="sendCodeAction()">📧 Отправить Email</button>
+            </div>
+            
             <div class="btn-row">
                 <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-                <button class="btn btn-primary" onclick="sendCodeAction()">📧 Отправить Код</button>
             </div>
         </div>
 
-        <!-- STEP 2: VERIFY CODE -->
+        <!-- STEP 2: VERIFY CODE (After QR scan or Email send) -->
         <div id="step-2" class="step-verify">
             <div class="info-text">
-                Письмо отправлено.<br>
-                Попросите клиента продиктовать код или ввести его ниже.
+                Попросите клиента показать код,<br>который он получил после сканирования<br>или из письма. Введите его ниже.
             </div>
             
-            <!-- Demo helper: shows code so admin can test without opening mail every time -->
-            <div style="background:rgba(255,90,44,.1);border:1px dashed var(--a);padding:10px;border-radius:8px;margin-bottom:15px;text-align:center">
-                <span style="font-size:.7rem;color:var(--m);text-transform:uppercase">Демо-код (для теста):</span><br>
-                <span class="code-display-demo" id="demo-code-view">------</span>
-            </div>
-
             <div class="input-group">
-                <label class="label">Введите полученный код</label>
-                <input type="text" id="verify-input" class="input" maxlength="6" inputmode="numeric" placeholder="______">
+                <label class="label">Код подтверждения</label>
+                <input type="text" id="verify-input" class="input" maxlength="6" inputmode="numeric" placeholder="______" style="text-align:center; font-size:1.5rem; letter-spacing:5px;">
             </div>
             
             <div class="btn-row">
-                <button class="btn btn-danger" onclick="resetToStep1()">← Назад</button>
-                <button class="btn btn-primary" onclick="checkVerification()">✅ Сверить</button>
+                <button class="btn btn-secondary" onclick="resetToStep1()">← Назад</button>
+                <button class="btn btn-primary" onclick="checkVerification()">✅ Завершить</button>
             </div>
+            <div id="result-error" class="error-msg">Неверный код!</div>
         </div>
         
         <!-- SUCCESS STATE -->
@@ -136,10 +141,18 @@ h1 span{color:var(--a)}
     </div>
 </div>
 
+<!-- FULLSCREEN OVERLAY FOR QR CODE -->
+<div class="qr-overlay" id="qr-screen">
+    <div class="qr-label">Отсканируйте этот код телефоном</div>
+    <div class="qr-card" id="qrcode-container"></div>
+    <div class="qr-code-val" id="qr-display-value">------</div>
+    <button class="btn-white" onclick="proceedToVerifyStep()">Шаг 2: Сверить код</button>
+</div>
+
 <script>
 // State
 let history = JSON.parse(localStorage.getItem('xc_verify_hist')) || [];
-let currentCode = '';
+let currentSecretCode = ''; // The code generated for this session
 let currentEmail = '';
 
 // Init Render
@@ -148,32 +161,82 @@ renderHistory();
 // --- MODAL CONTROL ---
 function openModal() {
     document.getElementById('verify-modal').classList.add('active');
-    resetToStep1(); // Ensure we start fresh
+    resetToStep1();
 }
 
 function closeModal() {
     document.getElementById('verify-modal').classList.remove('active');
     setTimeout(() => {
-        // Clear inputs after close animation
         document.getElementById('client-email').value = '';
         document.getElementById('verify-input').value = '';
+        document.getElementById('result-error').style.display = 'none';
     }, 300);
 }
 
 function finishAndClose() {
     closeModal();
-    renderHistory(); // Refresh list
+    renderHistory();
 }
-
-// --- LOGIC STEPS ---
 
 function resetToStep1() {
     document.getElementById('step-1').classList.add('active');
     document.getElementById('step-2').classList.remove('active');
     document.getElementById('step-3').style.display = 'none';
-    document.querySelector('.m-sub').innerText = "Шаг 1: Данные клиента";
+    document.getElementById('modal-subtext').innerText = "Шаг 1: Данные клиента";
+    document.getElementById('result-error').style.display = 'none';
+    currentSecretCode = ''; // Clear old code
 }
 
+// --- LOGIC: GENERATE QR ---
+function generateAndShowQR() {
+    const emailInput = document.getElementById('client-email');
+    const email = emailInput.value.trim();
+    
+    if (!email || !email.includes('@')) {
+        alert("Введите корректный Email");
+        return;
+    }
+
+    currentEmail = email;
+    
+    // 1. Generate Random 6-digit code
+    currentSecretCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // 2. Prepare QR Container
+    const container = document.getElementById('qrcode-container');
+    container.innerHTML = ""; // Clear previous QR
+    
+    // 3. Create QR Code using library
+    new QRCode(container, {
+        text: currentSecretCode,
+        width: 256,
+        height: 256,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    // 4. Show the code value below QR for admin reference too
+    document.getElementById('qr-display-value').innerText = currentSecretCode.split('').join(' ');
+
+    // 5. Show Fullscreen Overlay
+    document.getElementById('qr-screen').classList.add('active');
+}
+
+// Transition from QR Screen to Verify Input Step
+function proceedToVerifyStep() {
+    document.getElementById('qr-screen').classList.remove('active');
+    
+    // Switch main modal to Step 2
+    document.getElementById('step-1').classList.remove('active');
+    document.getElementById('step-2').classList.add('active');
+    document.getElementById('modal-subtext').innerText = "Шаг 2: Подтверждение кода";
+    
+    // Focus input
+    document.getElementById('verify-input').focus();
+}
+
+// --- LOGIC: SEND EMAIL (Legacy support) ---
 function sendCodeAction() {
     const emailInput = document.getElementById('client-email');
     const email = emailInput.value.trim();
@@ -184,33 +247,35 @@ function sendCodeAction() {
     }
 
     currentEmail = email;
-    // Generate Code
-    currentCode = Math.floor(100000 + Math.random() * 900000).toString();
+    currentSecretCode = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Show demo code in UI for easy testing
-    document.getElementById('demo-code-view').innerText = currentCode.split('').join(' ');
-
-    // Construct Mailto
     const subject = encodeURIComponent("Верификация устройства Xcortex");
-    const bodyContent = `Здравствуйте!\n\nВаш код подтверждения верификации:\n\n${currentCode}\n\nНикому его не сообщайте.\nСверьте его в терминале администратора.\nЕсли код пришел по ошибке, ничего не делайте.\n\n— Команда Xcortex`;
+    const bodyContent = `Здравствуйте!\n\nВаш код подтверждения верификации:\n\n${currentSecretCode}\n\nНикому его не сообщайте.\nСверьте его в терминале администратора.\nЕсли код пришел по ошибке, ничего не делайте.\n\n— Команда Xcortex`;
     const body = encodeURIComponent(bodyContent);
     
     const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-    
-    // Open Mail Client
     window.location.href = mailtoLink;
 
-    // Switch to Step 2
+    // Go straight to verification step since email was sent
     document.getElementById('step-1').classList.remove('active');
     document.getElementById('step-2').classList.add('active');
-    document.querySelector('.m-sub').innerText = "Шаг 2: Подтверждение кода";
+    document.getElementById('modal-subtext').innerText = "Шаг 2: Подтверждение кода";
     document.getElementById('verify-input').focus();
 }
 
+// --- LOGIC: CHECK CODE ---
 function checkVerification() {
     const inputVal = document.getElementById('verify-input').value.trim();
+    const errorEl = document.getElementById('result-error');
     
-    if (inputVal === currentCode) {
+    errorEl.style.display = 'none';
+
+    if (!currentSecretCode) {
+        alert("Ошибка: Код не сгенерирован.");
+        return;
+    }
+
+    if (inputVal === currentSecretCode) {
         // Success
         saveToHistory(currentEmail, 'verified');
         
@@ -218,27 +283,27 @@ function checkVerification() {
         document.getElementById('step-2').classList.remove('active');
         document.getElementById('step-3').style.display = 'block';
     } else {
-        alert("Неверный код! Попробуйте еще раз.");
+        // Fail
+        errorEl.style.display = 'block';
         document.getElementById('verify-input').value = '';
         document.getElementById('verify-input').focus();
     }
 }
 
 // --- DATA MANAGEMENT ---
-
 function saveToHistory(email, status) {
     const record = {
         id: Date.now(),
         email: email,
         date: new Date().toLocaleString('ru-RU'),
-        status: status // 'verified' or 'pending' (if we added pending logic later)
+        status: status
     };
-    history.unshift(record); // Add to top
+    history.unshift(record);
     localStorage.setItem('xc_verify_hist', JSON.stringify(history));
 }
 
 function deleteRecord(id) {
-    if(!confirm("Удалить эту запись из истории?")) return;
+    if(!confirm("Удалить эту запись?")) return;
     history = history.filter(h => h.id !== id);
     localStorage.setItem('xc_verify_hist', JSON.stringify(history));
     renderHistory();
