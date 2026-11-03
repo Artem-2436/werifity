@@ -2,244 +2,70 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Xcortex | Universal Hub</title>
+<title>Xcortex | Hub</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-    html, body { height: auto !important; overflow-y: auto !important; }
-:root{--bg:#0a0b10;--s:rgba(255,255,255,.03);--b:rgba(255,255,255,.08);--a:#ff5a2c;--t:#0fb3a6;--w:#fff;--m:#8b9bb4}
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}
-body{background:var(--bg);color:var(--w);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;overflow-y:auto;} /* Добавлено overflow-y:auto */
-.bg-mesh{position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 20% 30%,#1a1f35,transparent 40%),radial-gradient(circle at 80% 70%,#2d1b1b,transparent 40%);filter:blur(80px);opacity:.6;animation:f 20s infinite alternate ease-in-out}
-@keyframes f{0%{transform:translate(0,0)}100%{transform:translate(-20px,20px)}}
-.cont{max-width:500px;width:100%;padding:20px;text-align:center}
-header{text-align:center;margin-bottom:30px}
-h1{font-size:2rem;font-weight:800;letter-spacing:-1px}h1 span{color:var(--a)}
-.sub{color:var(--m);font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-top:5px}
-.main-btn{width:100%;padding:20px;background:linear-gradient(135deg,var(--a),#ff7e5f);border:none;border-radius:16px;color:#fff;font-size:1.1rem;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(255,90,44,.3);transition:.3s;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px}
-.main-btn:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(255,90,44,.5)}
-.hist-title{color:var(--m);font-size:.8rem;text-transform:uppercase;margin-bottom:10px;border-bottom:1px solid var(--b);padding-bottom:5px;text-align:left}
-.hist-list{display:flex;flex-direction:column;gap:8px}
-.hist-item{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;transition:.2s}
-.hist-item:hover{background:rgba(255,255,255,.05)}
-.h-info{text-align:left}.h-email{font-weight:600;color:var(--w)}.h-meta{font-size:.7rem;color:var(--m)}
-.del{background:none;border:none;color:#f44;cursor:pointer;opacity:.5;font-size:1.2rem;padding:5px}.del:hover{opacity:1}
-.mo{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(15px);z-index:1000;display:none;justify-content:center;align-items:center;opacity:0;transition:.4s}
-.mo.act{display:flex;opacity:1}
-.mc{width:90%;max-width:400px;background:linear-gradient(180deg,#1e2029,#15161c);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:30px;transform:scale(.95);transition:.4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 20px 50px rgba(0,0,0,.5);max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.mo.act .mc{transform:scale(1)}
-.m-h{margin-bottom:20px;text-align:center}.m-t{font-size:1.2rem;font-weight:700;color:var(--w)}.m-s{font-size:.8rem;color:var(--m);margin-top:5px}
-.ig{margin-bottom:15px;text-align:left}.lb{display:block;font-size:.75rem;color:var(--m);text-transform:uppercase;margin-bottom:5px}
-.inp{width:100%;background:rgba(0,0,0,.2);border:1px solid var(--b);color:#fff;padding:12px;border-radius:10px;outline:none;font-size:1rem;transition:.2s}
-.inp:focus{border-color:var(--t);box-shadow:0 0 0 2px rgba(15,179,166,.15)}
-.br{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-.bt{flex:1;min-width:120px;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;transition:.2s;font-size:.9rem;text-align:center}
-.bt-pri{background:var(--t);color:#000}.bt-pri:hover{background:#0dc4b6}
-.bt-sec{background:rgba(255,255,255,.05);color:var(--w);border:1px solid var(--b)}.bt-sec:hover{background:rgba(255,255,255,.1)}
-.bt-bio{background:linear-gradient(135deg,#6a11cb,#2575fc);color:#fff}.bt-bio:hover{opacity:.9}
-.bt-link{background:linear-gradient(135deg,#ff5a2c,#ffb86c);color:#fff}.bt-link:hover{transform:scale(1.02)}
-.st{display:none}.st.act{display:block;animation:fi .3s}@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.it{font-size:.8rem;color:var(--m);text-align:center;line-height:1.4;margin-bottom:15px}
-.bi{font-size:2rem;text-align:center;margin-bottom:10px}.sm{font-size:.8rem;text-align:center;min-height:20px}
-.sc{color:var(--t)}.er{color:#f44}
-.qr-o{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;display:none;justify-content:center;align-items:center;flex-direction:column;backdrop-filter:blur(10px)}
-.qr-o.act{display:flex}.qc{background:#fff;padding:20px;border-radius:15px;box-shadow:0 0 50px rgba(255,255,255,.2);margin-bottom:20px}
-.ql{color:#fff;font-size:1.2rem;margin-bottom:10px;text-align:center}.qv{font-family:monospace;font-size:2rem;color:var(--a);letter-spacing:5px;margin-bottom:20px;text-shadow:0 0 10px rgba(255,90,44,.5)}
-.bw{background:#fff;color:#000;border:none;padding:15px 30px;border-radius:10px;font-weight:700;cursor:pointer;font-size:1rem;transition:.2s}
-.bw:hover{transform:scale(1.05)}
-.hidden{display:none!important}
+:root{--bg:#0a0b10;--s:rgba(255,255,255,.03);--b:rgba(255,255,255,.08);--a:#ff5a2c;--t:#0fb3a6;--w:#fff;--m:#8b9bb4}*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}body{background:var(--bg);color:var(--w);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden}.cont{max-width:500px;width:100%;padding:20px;text-align:center}h1{font-size:2rem;font-weight:800}h1 span{color:var(--a)}.sub{color:var(--m);font-size:.8rem;text-transform:uppercase;margin-top:5px}.btn{width:100%;padding:15px;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:.2s;margin-bottom:10px;text-transform:uppercase}.main-btn{background:linear-gradient(135deg,var(--a),#ff7e5f);color:#fff;box-shadow:0 10px 20px rgba(255,90,44,.2)}.find-btn{background:rgba(255,255,255,.05);border:1px solid var(--b);color:var(--t)}.hist-title{color:var(--m);font-size:.8rem;text-transform:uppercase;margin:20px 0 10px;border-bottom:1px solid var(--b);padding-bottom:5px;text-align:left}.hist-list{display:flex;flex-direction:column;gap:8px}.hist-item{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:10px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem}.del{background:none;border:none;color:#f44;cursor:pointer;font-size:1.2rem}.mo{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:1000;display:none;justify-content:center;align-items:center}.mo.act{display:flex}.mc{width:90%;max-width:400px;background:#15161c;border:1px solid var(--b);border-radius:20px;padding:20px;max-height:85vh;overflow-y:auto}.m-t{font-size:1.1rem;font-weight:700;text-align:center;margin-bottom:15px}.ig{margin-bottom:10px;text-align:left}.lb{display:block;font-size:.7rem;color:var(--m);text-transform:uppercase;margin-bottom:5px}.inp{width:100%;background:rgba(0,0,0,.2);border:1px solid var(--b);color:#fff;padding:10px;border-radius:8px;outline:none;font-size:1rem}.br{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}.bt{flex:1;min-width:100px;padding:10px;border-radius:8px;border:none;font-weight:600;cursor:pointer;font-size:.85rem;text-align:center}.bt-pri{background:var(--t);color:#000}.bt-sec{background:rgba(255,255,255,.05);color:var(--w);border:1px solid var(--b)}.bt-nfc{background:linear-gradient(135deg,#00c6ff,#0072ff);color:#fff}.st{display:none}.st.act{display:block}.qr-o{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;display:none;justify-content:center;align-items:center;flex-direction:column}.qr-o.act{display:flex}.qc{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}.qv{font-family:monospace;font-size:1.5rem;color:var(--a);letter-spacing:3px;margin-bottom:15px}.bw{background:#fff;color:#000;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer}.res-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:3000;display:none;justify-content:center;align-items:center}.res-ov.act{display:flex}.rc{background:#1e2029;border:1px solid var(--t);padding:20px;border-radius:15px;text-align:center;max-width:300px}.uid-d{font-family:monospace;font-size:1.2rem;color:var(--m);word-break:break-all;margin:10px 0}.em-r{font-size:1.1rem;color:var(--t);font-weight:bold;margin-top:10px}
 </style>
 </head>
 <body>
-<div class="bg-mesh"></div>
 <div class="cont">
-<header><h1>X<span>cortex</span></h1><div class="sub">Universal Verification Hub</div></header>
-<button class="main-btn" onclick="OM()">🛡 Верифицировать Клиента</button>
-<div class="hist-title">История Верификаций</div>
+<h1>X<span>cortex</span></h1><div class="sub">Universal Hub</div>
+<button class="btn main-btn" onclick="OM()">🛡 Верифицировать</button>
+<button class="btn find-btn" onclick="startFindByUid()">🏷️ Найти по UID</button>
+<div class="hist-title">История</div>
 <div id="hl" class="hist-list"></div>
 </div>
-
-<!-- MODAL -->
-<div class="mo" id="vm">
-    <div class="mc">
-        <div class="m-h"><div class="m-t">Выбор Метода</div><div class="m-s" id="ms">Шаг 1: Данные клиента</div></div>
-        
-        <!-- STEP 1: SELECT METHOD -->
-        <div id="s1" class="st act">
-            <div class="ig"><label class="lb">Email клиента</label><input type="email" id="ce" class="inp" placeholder="user@example.com"></div>
-            <p style="font-size:.75rem;color:var(--m);margin-bottom:10px;text-align:center;">Выберите способ подтверждения:</p>
-            <div class="br">
-                <button class="bt bt-sec" onclick="SEF()">📧 Почта</button>
-                <button class="bt bt-sec" onclick="SQF()">📱 QR Код</button>
-            </div>
-            <div class="br">
-                <button class="bt bt-bio" onclick="SBR()">👆 Био (Регистрация)</button>
-                <button class="bt bt-sec" onclick="CEB()">🔍 Био (Сверка)</button>
-            </div>
-            <div class="br">
-                <button class="bt bt-link" style="width:100%" onclick="showOTLMenu()">🔗 Временная Ссылка (One-Time)</button>
-            </div>
-            <div class="br"><button class="bt bt-sec" onclick="CM()">Отмена</button></div>
-        </div>
-
-        <!-- STEP 2: CODE INPUT (For Email/QR) -->
-        <div id="s2" class="st">
-            <div class="it" id="i2">Введите код, полученный клиентом.</div>
-            <div class="ig"><label class="lb">Код подтверждения</label><input type="text" id="vi" class="inp" maxlength="6" inputmode="numeric" placeholder="______" style="text-align:center; letter-spacing:5px; font-size:1.2rem;"></div>
-            <div class="br"><button class="bt bt-sec" onclick="R1()">← Назад</button><button class="bt bt-pri" onclick="CV()">✅ Завершить</button></div>
-            <div id="re" class="sm er" style="display:none">Неверный код!</div>
-        </div>
-        
-        <!-- STEP 3: BIO STATUS -->
-        <div id="s3" class="st">
-            <div class="bi">📱</div><div class="it">Подтвердите личность...</div><div id="bs" class="sm"></div>
-            <div class="br"><button class="bt bt-sec" onclick="R1()">Отмена</button></div>
-        </div>
-
-        <!-- STEP OTL MENU (New Feature) -->
-        <div id="s-otl-menu" class="st">
-            <div class="it">Тип временной ссылки:</div>
-            <div class="br">
-                <button class="bt bt-pri" onclick="initOTL('pay')">💳 Оплата</button>
-                <button class="bt bt-sec" onclick="initOTL('verif')">🛡 Верификация</button>
-            </div>
-            <div class="br"><button class="bt bt-sec" onclick="R1()">← Назад к методам</button></div>
-        </div>
-
-        <!-- STEP OTL INPUT -->
-        <div id="s-otl-input" class="st">
-            <div class="ig"><label class="lb" id="otl-lbl">Значение</label><input type="text" id="otl-val" class="inp" placeholder="..."></div>
-            <div class="br"><button class="bt bt-bio" onclick="genOTLLink()">🔒 Подтвердить (Bio) & Gen QR</button></div>
-            <div class="br"><button class="bt bt-sec" onclick="R1()">← Отмена</button></div>
-        </div>
-
-        <!-- SUCCESS STATE -->
-        <div id="ss" style="display:none;text-align:center;padding:20px 0">
-            <div style="font-size:3rem;margin-bottom:10px">✨</div><h3 style="color:var(--t)">Успешно!</h3>
-            <p style="color:var(--m);font-size:.9rem;margin-bottom:20px">Клиент верифицирован.</p>
-            <button class="bt bt-pri" onclick="FC()">Готово</button>
-        </div>
-    </div>
+<div class="mo" id="vm"><div class="mc">
+<div class="m-t" id="ms">Методы</div>
+<div id="s1" class="st act">
+<div class="ig"><label class="lb">Email</label><input type="email" id="ce" class="inp" placeholder="user@test.com"></div>
+<p style="font-size:.7rem;color:var(--m);text-align:center;margin:5px 0;">Выберите метод:</p>
+<div class="br"><button class="bt bt-sec" onclick="SEF()">📧 Почта</button><button class="bt bt-sec" onclick="SQF()">📱 QR</button></div>
+<div class="br"><button class="bt bt-nfc" onclick="SNFC()">🏷️ NFC Bind</button><button class="bt bt-sec" onclick="SBR()">👆 Bio Reg</button></div>
+<div class="br"><button class="bt bt-sec" onclick="CEB()">🔍 Bio Check</button><button class="bt bt-sec" onclick="showOTLMenu()">🔗 One-Time</button></div>
+<div class="br"><button class="bt bt-sec" onclick="CM()" style="width:100%">Отмена</button></div>
 </div>
-
-<!-- QR OVERLAY (Standard & One-Time) -->
-<div class="qr-o" id="qs">
-    <div class="ql" id="qr-label">Сканируйте этот код телефоном</div>
-    <div class="qc" id="qcc"></div>
-    <div class="qv" id="qvv">------</div>
-    <button class="bw" id="qr-action-btn" onclick="PFQ()">Шаг 2: Сверить код</button>
-</div>
-
-<canvas id="cv" style="display:none"></canvas>
-
+<div id="s2" class="st"><div class="it" id="i2">Введите код</div><div class="ig"><input type="text" id="vi" class="inp" maxlength="6" inputmode="numeric" style="text-align:center;letter-spacing:5px"></div><div class="br"><button class="bt bt-sec" onclick="R1()">← Назад</button><button class="bt bt-pri" onclick="CV()">✅ Готово</button></div><div id="re" class="sm er" style="display:none;color:#f44;text-align:center;font-size:.8rem">Неверный код!</div></div>
+<div id="s3" class="st"><div style="text-align:center;font-size:2rem">📱</div><div class="it">Биометрия...</div><div id="bs" class="sm" style="text-align:center;color:var(--m)"></div><div class="br"><button class="bt bt-sec" onclick="R1()">Отмена</button></div></div>
+<div id="s4" class="st"><div style="text-align:center;font-size:2rem">🏷️</div><div class="it">Приложите карту к телефону</div><div id="nfs" class="sm sc" style="text-align:center;color:var(--t)">Ожидание...</div><div class="br"><button class="bt bt-sec" onclick="cancelNfcScan()">Отменить</button></div></div>
+<div id="s-otl-menu" class="st"><div class="it">Тип ссылки:</div><div class="br"><button class="bt bt-pri" onclick="initOTL('pay')">💳 Оплата</button><button class="bt bt-sec" onclick="initOTL('verif')">🛡 Вериф</button></div><div class="br"><button class="bt bt-sec" onclick="R1()">← Назад</button></div></div>
+<div id="s-otl-input" class="st"><div class="ig"><label class="lb" id="otl-lbl">Значение</label><input type="text" id="otl-val" class="inp"></div><div class="br"><button class="bt bt-nfc" onclick="genOTLLink()">🔒 Gen Link</button><button class="bt bt-sec" onclick="R1()">← Отмена</button></div></div>
+<div id="ss" style="display:none;text-align:center;padding:20px 0"><div style="font-size:2rem">✨</div><h3 style="color:var(--t)">Успех!</h3><button class="bt bt-pri" onclick="FC()" style="margin-top:10px">Готово</button></div>
+</div></div>
+<div class="qr-o" id="qs"><div class="ql" id="qr-label" style="color:#fff;margin-bottom:10px">Сканируйте</div><div class="qc" id="qcc"></div><div class="qv" id="qvv">------</div><button class="bw" id="qr-action-btn" onclick="PFQ()">Шаг 2</button></div>
+<div class="res-ov" id="res-ov"><div class="rc"><h3 style="color:white;margin-bottom:10px">Результат</h3><div class="uid-d" id="found-uid">UID: ...</div><div class="em-r" id="found-email">Email: ...</div><button class="bt bt-sec" onclick="document.getElementById('res-ov').classList.remove('act')" style="margin-top:15px;width:100%">Закрыть</button></div></div>
 <script>
-// State
-let H=JSON.parse(localStorage.getItem('xu_h'))||[],C='',E='',M='',stream=null,isOtlMode=false;
-const STATIC_CODE='713876'; // For One-Time Verif Link
-
-// Init
-RH(); handleRoute();
-
-// --- ROUTER (For Client View via Hash) ---
-function handleRoute() {
-    const hash = window.location.hash;
-    document.querySelectorAll('.v').forEach(e => e.classList.remove('act'));
-    if (hash.startsWith('#/client')) {
-        // Hide Admin UI completely
-        document.querySelector('.cont').style.display='none';
-        initClientView(hash);
-    } else {
-        document.querySelector('.cont').style.display='block';
-        document.getElementById('v-admin')?.classList.add('act'); // Fallback if needed
-    }
-}
-window.onhashchange = handleRoute;
-
-// --- ADMIN LOGIC ---
+let H=JSON.parse(localStorage.getItem('xu_h'))||[],C='',E='',M='',nfcReader=null,currentOtlType='';
+RH();handleRoute();
+function handleRoute(){const h=location.hash;if(h.startsWith('#/client')){document.querySelector('.cont').style.display='none';initClientView(h)}else{document.querySelector('.cont').style.display='block'}}
+window.onhashchange=handleRoute;
 function OM(){document.getElementById('vm').classList.add('act');R1()}
-function CM(){document.getElementById('vm').classList.remove('act');setTimeout(()=>{document.getElementById('ce').value='';document.getElementById('vi').value='';document.getElementById('re').style.display='none';document.getElementById('bs').innerText=''},300)}
+function CM(){document.getElementById('vm').classList.remove('act');setTimeout(()=>{['ce','vi'].forEach(id=>document.getElementById(id).value='');document.getElementById('re').style.display='none';document.getElementById('bs').innerText=''},300)}
 function FC(){CM();RH()}
-function R1(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s1').classList.add('act');document.getElementById('ss').style.display='none';document.getElementById('ms').innerText="Шаг 1: Данные клиента";document.getElementById('re').style.display='none';C='';M='';isOtlMode=false}
-function VE(){const e=document.getElementById('ce').value.trim();if(!e||!e.includes('@')){alert("Введите Email");return null}return e}
+function R1(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s1').classList.add('act');document.getElementById('ss').style.display='none';document.getElementById('ms').innerText="Методы";document.getElementById('re').style.display='none';C='';M=''}
+function VE(){const e=document.getElementById('ce').value.trim();if(!e||!e.includes('@')){alert("Email?");return null}return e}
 function GC(){return Math.floor(100000+Math.random()*900000).toString()}
-function S2(t){document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s2').classList.add('act');document.getElementById('ms').innerText="Шаг 2: Подтверждение кода";document.getElementById('i2').innerText=t;document.getElementById('vi').focus()}
-function SS(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('ss').style.display='block';document.getElementById('ms').innerText="Завершено"}
-function SR(em,tp){H.unshift({id:Date.now(),email:em,date:new Date().toLocaleString('ru-RU'),type:tp});localStorage.setItem('xu_h',JSON.stringify(H));RH()}
-function DL(id){if(confirm("Удалить?")){H=H.filter(h=>h.id!==id);localStorage.setItem('xu_h',JSON.stringify(H));RH()}}
-function RH(){const l=document.getElementById('hl');l.innerHTML='';if(!H.length){l.innerHTML='<div style="text-align:center;color:var(--m);padding:10px;font-size:.8rem">Пусто</div>';return}H.forEach(i=>{const d=document.createElement('div');d.className='hist-item';let ic=i.type==='email'?'📧':i.type==='qr'?'📱':i.type==='biometric'?'👆':'';d.innerHTML=`<div class="h-info"><div class="h-email">${ic} ${i.email}</div><div class="h-meta">${i.date} • ${i.type.toUpperCase()}</div></div><button class="del" onclick="DL(${i.id})">×</button>`;l.appendChild(d)})}
-
-// Method 1: Email
-function SEF(){const em=VE();if(!em)return;E=em;M='email';C=GC();const s=encodeURIComponent("Верификация Xcortex"),b=encodeURIComponent(`Код:\n\n${C}\n\nНикому не сообщайте.`);window.location.href=`mailto:${em}?subject=${s}&body=${b}`;S2("Письмо отправлено. Введите код из почты.")}
-
-// Method 2: QR
-function SQF(){const em=VE();if(!em)return;E=em;M='qr';C=GC();const c=document.getElementById('qcc');c.innerHTML="";new QRCode(c,{text:C,width:200,height:200,colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.H});document.getElementById('qvv').innerText=C.split('').join(' ');document.getElementById('qr-label').innerText="Сканируйте код для получения пароля";document.getElementById('qr-action-btn').innerText="Шаг 2: Сверить код";document.getElementById('qr-action-btn').onclick=PFQ;document.getElementById('qs').classList.add('act')}
-function PFQ(){document.getElementById('qs').classList.remove('act');S2("Клиент показал код со скана. Введите его ниже.")}
-
-// Method 3: Bio Reg
-async function SBR(){const em=VE();if(!em)return;E=em;M='bio_reg';document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s3').classList.add('act');document.getElementById('ms').innerText="Биометрическая проверка";document.getElementById('bs').innerHTML='<span class="sc">Ожидание...</span>';try{const ch=crypto.getRandomValues(new Uint8Array(32)),ue={id:new TextEncoder().encode(em),name:em,displayName:em},po={challenge:ch,rp:{name:"Xcortex",id:location.hostname},user:ue,pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"},timeout:60000};await navigator.credentials.create({publicKey:po});SR(E,'biometric');document.getElementById('bs').innerHTML='<span class="sc">✅ Ключ сохранен!</span>';setTimeout(SS,1000)}catch(er){console.error(er);document.getElementById('bs').innerHTML=`<span class="er">❌ ${er.message}</span>`;setTimeout(R1,3000)}}
-
-// Method 4: Bio Check
-async function CEB(){const em=VE();if(!em)return;const su=H.find(h=>h.email===em&&h.type==='biometric');if(!su){alert("Нет записи.");return}E=em;M='bio_check';document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s3').classList.add('act');document.getElementById('ms').innerText="Сверка биометрии";document.getElementById('bs').innerHTML='<span class="sc">Запрос...</span>';try{const ac=[{type:"public-key",id:(()=>{const b=atob(su.credentialId);const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer})()}],ch=crypto.getRandomValues(new Uint8Array(32)),po={challenge:ch,rpId:location.hostname,allowCredentials:ac,userVerification:"required",timeout:60000};await navigator.credentials.get({publicKey:po});const idx=H.findIndex(h=>h.id===su.id);if(idx!==-1){H[idx].date=new Date().toLocaleString('ru-RU');localStorage.setItem('xu_h',JSON.stringify(H))}document.getElementById('bs').innerHTML='<span class="sc">✅ Подтверждено!</span>';setTimeout(SS,1000)}catch(er){console.error(er);document.getElementById('bs').innerHTML=`<span class="er">❌ ${er.name}</span>`;setTimeout(R1,3000)}}
-
-function CV(){const iv=document.getElementById('vi').value.trim(),ee=document.getElementById('re');ee.style.display='none';if(!C){alert("Ошибка");return}if(iv===C){SR(E,M);SS()}else{ee.innerText="Неверный код!";ee.style.display='block';document.getElementById('vi').value='';document.getElementById('vi').focus()}}
-
-// --- NEW FEATURE: ONE TIME LINK ---
-function showOTLMenu(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s-otl-menu').classList.add('act');document.getElementById('ms').innerText="Временная ссылка"}
-function initOTL(type){currentOtlType=type;document.querySelectorAll('.st').forEach(e=>e.classList.remove('active'));document.getElementById('s-otl-input').classList.add('act');document.getElementById('ms').innerText="Данные для ссылки";const lbl=document.getElementById('otl-lbl'),val=document.getElementById('otl-val');if(type==='pay'){lbl.innerText="Сумма оплаты (₽)";val.placeholder="1000"}else{lbl.innerText="Тип верификации";val.placeholder="standard"}val.value=''}
-async function genOTLLink(){
-    const val=document.getElementById('otl-val').value.trim();
-    if(!val)return alert("Введите значение");
-    try{
-        if(!window.PublicKeyCredential)throw new Error("No WebAuthn");
-        await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex",id:location.hostname},user:{id:new TextEncoder().encode(val),name:"admin",displayName:"A"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});
-        
-        const payload=btoa(JSON.stringify({t:currentOtlType,v:val,exp:Date.now()+120000}));
-        const url=`${location.origin}${location.pathname}#/client?d=${payload}`;
-        
-        document.getElementById('qcc').innerHTML="";
-        new QRCode(document.getElementById('qcc'),{text:url,width:200,height:200});
-        document.getElementById('qvv').innerText="LINK ACTIVE";
-        document.getElementById('qr-label').innerText="Отсканируйте для перехода";
-        document.getElementById('qr-action-btn').innerText="❌ Закрыть ссылку";
-        document.getElementById('qr-action-btn').onclick=()=>{document.getElementById('qs').classList.remove('act');R1()};
-        document.getElementById('qs').classList.add('act');
-        
-    }catch(e){alert("Ошибка био: "+e.message)}
-}
-
-// --- CLIENT VIEW LOGIC (Hidden in Admin flow, triggered by Hash) ---
-function initClientView(hash){
-    // Create a temporary container for client view if not exists
-    let cliDiv = document.getElementById('cli-container');
-    if(!cliDiv){
-        cliDiv = document.createElement('div');
-        cliDiv.id = 'cli-container';
-        cliDiv.style.cssText = "max-width:400px;width:100%;padding:20px;text-align:center;";
-        document.body.appendChild(cliDiv);
-    }
-    
-    const params=new URLSearchParams(hash.split('?')[1]);
-    const dataStr=params.get('d');
-    if(!dataStr){cliDiv.innerHTML="<h2 style='color:red'>Invalid Link</h2>";return;}
-    
-    try{
-        const data=JSON.parse(atob(dataStr));
-        if(Date.now()>data.exp){cliDiv.innerHTML="<h2 style='color:red'>Expired</h2>";return;}
-        
-        if(data.t==='pay'){
-            cliDiv.innerHTML=`<div class="mc"><h2 style="color:var(--a)">Xcortex Pay</h2><p>Sum: ${data.v} ₽</p><button class="bt bt-pri" onclick="alert('Paying...')">Pay Now</button></div>`;
-        }else{
-            cliDiv.innerHTML=`<div class="mc"><h2 style="color:var(--a)">Verify Account</h2><p>Show this code to admin:</p><div style="font-size:2rem;color:var(--t);margin:20px 0">${STATIC_CODE}</div><input type="email" id="cli-em" class="inp" placeholder="Your Email"><button class="bt bt-pri" onclick="submitCli('${data.v}')">Confirm</button></div>`;
-        }
-    }catch(e){cliDiv.innerHTML="<h2>Error</h2>"}
-}
-function submitCli(type){
-    const email=document.getElementById('cli-em').value.trim();
-    if(!email)return alert("Enter Email");
-    // Save locally (simulating server sync)
-    const rec={id:Date.now(),email:email,date:new Date().toLocaleString('ru-RU'),type:'link_'+type};
-    H.unshift(rec);localStorage.setItem('xu_h',JSON.stringify(H));
-    document.getElementById('cli-container').innerHTML="<h2 style='color:green'>Success! Close tab.</h2>";
-}
+function S2(t){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s2').classList.add('act');document.getElementById('ms').innerText="Код";document.getElementById('i2').innerText=t;document.getElementById('vi').focus()}
+function SS(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('ss').style.display='block';document.getElementById('ms').innerText="Done"}
+function SR(em,tp,uid=null){H.unshift({id:Date.now(),email:em,date:new Date().toLocaleString('ru-RU'),type:tp,uid});localStorage.setItem('xu_h',JSON.stringify(H));RH()}
+function DL(id){if(confirm("Del?")){H=H.filter(h=>h.id!==id);localStorage.setItem('xu_h',JSON.stringify(H));RH()}}
+function RH(){const l=document.getElementById('hl');l.innerHTML='';if(!H.length){l.innerHTML='<div style="text-align:center;color:var(--m);padding:10px;font-size:.8rem">Empty</div>';return}H.forEach(i=>{const d=document.createElement('div');d.className='hist-item';let ic=i.type==='email'?'📧':i.type==='qr'?'📱':i.type==='biometric'?'👆':i.type==='nfc'?'🏷️':'❓';d.innerHTML=`<div><strong>${ic} ${i.email}</strong><br><small style="color:var(--m)">${i.date} • ${i.type.toUpperCase()}</small></div><button class="del" onclick="DL(${i.id})">×</button>`;l.appendChild(d)})}
+function SEF(){const em=VE();if(!em)return;E=em;M='email';C=GC();window.location.href=`mailto:${em}?subject=Xcortex&body=${encodeURIComponent(C)}`;S2("Mail sent")}
+function SQF(){const em=VE();if(!em)return;E=em;M='qr';C=GC();new QRCode(document.getElementById('qcc'),{text:C,width:150,height:150});document.getElementById('qvv').innerText=C.split('').join(' ');document.getElementById('qr-label').innerText="Scan for code";document.getElementById('qr-action-btn').onclick=PFQ;document.getElementById('qs').classList.add('act')}
+function PFQ(){document.getElementById('qs').classList.remove('act');S2("Enter scanned code")}
+async function SBR(){const em=VE();if(!em)return;E=em;M='bio_reg';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Wait...';try{await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex",id:location.hostname},user:{id:new TextEncoder().encode(em),name:em,displayName:em},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});SR(E,'biometric');document.getElementById('bs').innerHTML='✅ Saved';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.message}`;setTimeout(R1,3000)}}
+async function CEB(){const em=VE();if(!em)return;const su=H.find(h=>h.email===em&&h.type==='biometric');if(!su){alert("No bio reg");return}E=em;M='bio_check';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Check...';try{const ac=[{type:"public-key",id:(()=>{const b=atob(su.credentialId||"");const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer})()}];await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rpId:location.hostname,allowCredentials:ac,userVerification:"required"}});const idx=H.findIndex(h=>h.id===su.id);if(idx!==-1){H[idx].date=new Date().toLocaleString('ru-RU');localStorage.setItem('xu_h',JSON.stringify(H))}document.getElementById('bs').innerHTML='✅ OK';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.name}`;setTimeout(R1,3000)}}
+async function SNFC(){const em=VE();if(!em)return;E=em;document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s4').classList.add('act');document.getElementById('ms').innerText="NFC Bind";document.getElementById('nfs').innerHTML='Waiting tag...';try{if(!navigator.nfc)throw new Error("No NFC API");nfcReader=new NDEFReader();nfcReader.addEventListener("message",({serialNumber})=>{nfcReader.stop();const uid=serialNumber||"UNK_"+Date.now();SR(E,'nfc',uid);document.getElementById('nfs').innerHTML=`✅ UID: ${uid}`;setTimeout(SS,1500)});nfcReader.addEventListener("error",(e)=>{document.getElementById('nfs').innerHTML=`❌ ${e.error.name}`;setTimeout(cancelNfcScan,3000)});await nfcReader.scan()}catch(err){document.getElementById('nfs').innerHTML=`❌ ${err.message}`;setTimeout(cancelNfcScan,3000)}}
+function cancelNfcScan(){if(nfcReader)try{nfcReader.stop()}catch(e){};R1()}
+async function startFindByUid(){if(!navigator.nfc){alert("No NFC");return}try{const r=new NDEFReader();r.addEventListener("message",({serialNumber})=>{r.stop();searchAndShowResult(serialNumber)});r.addEventListener("error",(e)=>alert("Err:"+e.error.name));await r.scan()}catch(err){alert("Start fail:"+err.message)}}
+function searchAndShowResult(uid){const m=H.find(i=>i.type==='nfc'&&i.uid===uid);const ro=document.getElementById('res-ov'),ud=document.getElementById('found-uid'),ed=document.getElementById('found-email');ud.innerText="UID: "+uid;if(m){ed.innerText="Client: "+m.email;ed.style.color="#0fb3a6"}else{ed.innerText="Not Found";ed.style.color="#f44"}ro.classList.add('act')}
+function CV(){const iv=document.getElementById('vi').value.trim(),ee=document.getElementById('re');ee.style.display='none';if(!C){alert("Err");return}if(iv===C){SR(E,M);SS()}else{ee.innerText="Wrong!";ee.style.display='block';document.getElementById('vi').value='';document.getElementById('vi').focus()}}
+function showOTLMenu(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s-otl-menu').classList.add('act');document.getElementById('ms').innerText="One-Time"}
+function initOTL(type){currentOtlType=type;document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s-otl-input').classList.add('act');document.getElementById('ms').innerText="Data";const lbl=document.getElementById('otl-lbl'),val=document.getElementById('otl-val');lbl.innerText=type==='pay'?"Amount":"Type";val.placeholder=type==='pay'?"1000":"std";val.value=''}
+async function genOTLLink(){const val=document.getElementById('otl-val').value.trim();if(!val)return alert("Val?");try{if(!window.PublicKeyCredential)throw new Error("No Auth");await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex",id:location.hostname},user:{id:new TextEncoder().encode(val),name:"admin",displayName:"A"},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});const p=btoa(JSON.stringify({t:currentOtlType,v:val,exp:Date.now()+120000}));const u=`${location.origin}${location.pathname}#/client?d=${p}`;new QRCode(document.getElementById('qcc'),{text:u,width:150,height:150});document.getElementById('qvv').innerText="ACTIVE";document.getElementById('qr-label').innerText="Scan Link";document.getElementById('qr-action-btn').innerText="Close";document.getElementById('qr-action-btn').onclick=()=>{document.getElementById('qs').classList.remove('act');R1()};document.getElementById('qs').classList.add('act')}catch(e){alert("Bio Err:"+e.message)}}
+function initClientView(hash){let cd=document.getElementById('cli-container');if(!cd){cd=document.createElement('div');cd.id='cli-container';cd.style.cssText="max-width:400px;width:100%;padding:20px;text-align:center;";document.body.appendChild(cd)}const ps=new URLSearchParams(hash.split('?')[1]),ds=ps.get('d');if(!ds){cd.innerHTML="<h2 style='color:red'>Bad</h2>";return}try{const dt=JSON.parse(atob(ds));if(Date.now()>dt.exp){cd.innerHTML="<h2 style='color:red'>Exp</h2>";return}if(dt.t==='pay')cd.innerHTML=`<div class="mc"><h2 style="color:var(--a)">Pay</h2><p>${dt.v} ₽</p><button class="bt bt-pri" onclick="alert('Paying')">Go</button></div>`;else cd.innerHTML=`<div class="mc"><h2 style="color:var(--a)">Verify</h2><p>Show Code:</p><div style="font-size:2rem;color:var(--t);margin:10px 0">713876</div><input type="email" id="cli-em" class="inp" placeholder="Email"><button class="bt bt-pri" onclick="submitCli('${dt.v}')">Confirm</button></div>`}catch(e){cd.innerHTML="<h2>Error</h2>"}}
+function submitCli(type){const em=document.getElementById('cli-em').value.trim();if(!em)return alert("Email");const r={id:Date.now(),email:em,date:new Date().toLocaleString('ru-RU'),type:'link_'+type};H.unshift(r);localStorage.setItem('xu_h',JSON.stringify(H));document.getElementById('cli-container').innerHTML="<h2 style='color:green'>OK</h2>"}
 </script>
 </body>
 </html>
