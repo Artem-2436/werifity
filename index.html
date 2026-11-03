@@ -73,7 +73,10 @@ h1{font-size:2rem;font-weight:800}h1 span{color:var(--a)}
 <div class="qr-o" id="qs"><div class="ql" id="qr-label" style="color:#fff;margin-bottom:10px">Сканируйте</div><div class="qc" id="qcc"></div><div class="qv" id="qvv">------</div><button class="bw" id="qr-action-btn" onclick="PFQ()">Шаг 2</button></div>
 <div class="res-ov" id="res-ov"><div class="rc"><h3 style="color:white;margin-bottom:10px">Результат</h3><div class="uid-display uid-d" id="found-uid">UID: ...</div><div class="em-r" id="found-email">Email: ...</div><button class="bt bt-sec" onclick="document.getElementById('res-ov').classList.remove('act')" style="margin-top:15px;width:100%">Закрыть</button></div></div>
 <script>
-  let H=JSON.parse(localStorage.getItem('xu_h'))||[],C='',E='',M='',nfcReader=null,currentOtlType='';
+      let H=JSON.parse(localStorage.getItem('xu_h'))||[],C='',E='',M='',currentOtlType='';
+// Глобальный читатель, чтобы избежать конфликтов создания новых объектов
+let activeReader = null; 
+
 RH();handleRoute();checkNfcSupport();
 
 function checkNfcSupport(){
@@ -132,73 +135,85 @@ function PFQ(){document.getElementById('qs').classList.remove('act');S2("Enter s
 async function SBR(){const em=VE();if(!em)return;E=em;M='bio_reg';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Wait...';try{await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex",id:location.hostname},user:{id:new TextEncoder().encode(em),name:em,displayName:em},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});SR(E,'biometric');document.getElementById('bs').innerHTML='✅ Saved';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.message}`;setTimeout(R1,3000)}}
 async function CEB(){const em=VE();if(!em)return;const su=H.find(h=>h.email===em&&h.type==='biometric');if(!su){alert("No bio reg");return}E=em;M='bio_check';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Check...';try{const ac=[{type:"public-key",id:(()=>{const b=atob(su.credentialId||"");const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer})()}];await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rpId:location.hostname,allowCredentials:ac,userVerification:"required"}});const idx=H.findIndex(h=>h.id===su.id);if(idx!==-1){H[idx].date=new Date().toLocaleString('ru-RU');localStorage.setItem('xu_h',JSON.stringify(H))}document.getElementById('bs').innerHTML='✅ OK';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.name}`;setTimeout(R1,3000)}}
 
-// --- INTEGRATED NFC LOGIC (Using 'reading' event for reliability) ---
+// --- WORKING NFC LOGIC (Mirroring your Deep Scan code exactly) ---
+
+async function stopCurrentScan() {
+    if (activeReader) {
+        try { await activeReader.stop(); } catch(e) {}
+        activeReader = null;
+    }
+}
 
 async function SNFC(){
     const em=VE();if(!em)return;E=em;
     document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));
     document.getElementById('s4').classList.add('act');
     document.getElementById('ms').innerText="NFC Bind";
-    document.getElementById('nfs').innerHTML='<span class="sc">Активация сканера...</span>';
+    document.getElementById('nfs').innerHTML='<span class="sc">Активация... Приложите карту</span>';
     
+    // Очищаем старый сканер
+    await stopCurrentScan();
+
     try{
         if(!('NDEFReader'in window))throw new Error("No NFC Support");
         
-        nfcReader=new NDEFReader();
+        // Создаем НОВЫЙ экземпляр каждый раз, как в твоем рабочем коде
+        activeReader = new NDEFReader();
         
-        // КРИТИЧНО: Используем событие "reading", как в твоем рабочем коде
-        nfcReader.addEventListener("reading", async ({ serialNumber }) => {
-            console.log("Tag Detected via reading event:", serialNumber);
+        // Слушаем событие READING (это ключ к успеху с банковскими картами)
+        activeReader.addEventListener("reading", async ({ serialNumber }) => {
+            console.log("UID Found:", serialNumber);
             
-            // Останавливаем сканер сразу после обнаружения
-            await nfcReader.stop();
+            // Останавливаем сканирование сразу после получения UID
+            await stopCurrentScan();
             
             if(serialNumber){
-                // Сохраняем привязку Email <-> UID
                 SR(E,'nfc',serialNumber);
-                document.getElementById('nfs').innerHTML=`<span class="sc">✅ UID Получен:<br>${serialNumber.substring(0,12)}...</span>`;
+                document.getElementById('nfs').innerHTML=`<span class="sc">✅ Привязано!<br>UID: ${serialNumber.substring(0,10)}...</span>`;
                 setTimeout(SS,1500);
             } else {
-                 throw new Error("Serial Number Empty");
+                 document.getElementById('nfs').innerHTML=`<span class="er">❌ UID пустой</span>`;
             }
         });
 
-        // Обработка ошибок чтения данных (если карта защищена, но UID мы уже получили выше)
-        nfcReader.addEventListener("readingerror", () => {
-             console.warn("Read error occurred, but checking if UID was captured...");
-             // Не сбрасываем процесс мгновенно, давая время событию reading отработать
+        // Обработка ошибок чтения (для банковских карт это нормально, если UID уже есть)
+        activeReader.addEventListener("readingerror", () => {
+             console.warn("Read error, but listening for UID...");
         });
 
-        // Запускаем сканирование
-        await nfcReader.scan();
+        // Запускаем скан
+        await activeReader.scan();
 
     }catch(err){
+        console.error(err);
         document.getElementById('nfs').innerHTML=`<span class="er">❌ ${err.message}</span>`;
         setTimeout(cancelNfcScan,3000);
     }
 }
 
 function cancelNfcScan(){
-    if(nfcReader)try{nfcReader.stop()}catch(e){};
-    R1();
+    stopCurrentScan();
+    R1(); 
 }
 
 async function startFindByUid(){
     if(!('NDEFReader'in window)){alert("No NFC");return}
+    
+    await stopCurrentScan();
+
     try{
-        const r=new NDEFReader();
+        activeReader = new NDEFReader();
         
-        // Слушаем "reading" для поиска
-        r.addEventListener("reading", async ({ serialNumber }) => {
-            await r.stop();
+        activeReader.addEventListener("reading", async ({ serialNumber }) => {
+            await stopCurrentScan();
             searchAndShowResult(serialNumber);
         });
 
-        r.addEventListener("readingerror", (e) => {
+        activeReader.addEventListener("readingerror", (e) => {
              console.warn("Search Read Error:", e);
         });
 
-        await r.scan();
+        await activeReader.scan();
         
     }catch(err){alert("Start fail:"+err.message)}
 }
