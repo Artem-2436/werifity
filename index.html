@@ -75,29 +75,145 @@ h1{font-size:2rem;font-weight:800}h1 span{color:var(--a)}
 <script>
   let H=JSON.parse(localStorage.getItem('xu_h'))||[],C='',E='',M='',nfcReader=null,currentOtlType='';
 RH();handleRoute();checkNfcSupport();
-function checkNfcSupport(){const btn=document.getElementById('nfc-find-btn');if(!('NDEFReader'in window)){btn.innerHTML='⚠️ No NFC';btn.style.opacity='.5';btn.onclick=()=>alert("No Web NFC API")}}
-function handleRoute(){const h=location.hash;if(h.startsWith('#/client')){document.querySelector('.cont').style.display='none';initClientView(h)}else{document.querySelector('.cont').style.display='block'}}
+
+function checkNfcSupport(){
+    const btn=document.getElementById('nfc-find-btn');
+    if(!('NDEFReader'in window)){
+        btn.innerHTML='⚠️ No NFC';
+        btn.style.opacity='.5';
+        btn.onclick=()=>alert("No Web NFC API");
+    }
+}
+
+function handleRoute(){
+    const h=location.hash;
+    if(h.startsWith('#/client')){
+        document.querySelector('.cont').style.display='none';
+        initClientView(h);
+    }else{
+        document.querySelector('.cont').style.display='block';
+    }
+}
 window.onhashchange=handleRoute;
+
+// --- ADMIN UI CONTROLS ---
 function OM(){document.getElementById('vm').classList.add('act');R1()}
 function CM(){document.getElementById('vm').classList.remove('act');setTimeout(()=>{['ce','vi'].forEach(id=>document.getElementById(id).value='');document.getElementById('re').classList.add('hidden')},300)}
 function FC(){CM();RH()}
-function R1(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s1').classList.add('act');document.getElementById('ss').style.display='none';document.getElementById('ms').innerText="Методы";document.getElementById('re').classList.add('hidden');C='';M=''}
+function R1(){
+    document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));
+    document.getElementById('s1').classList.add('act');
+    document.getElementById('ss').style.display='none';
+    document.getElementById('ms').innerText="Методы";
+    document.getElementById('re').classList.add('hidden');
+    C='';M='';
+}
 function VE(){const e=document.getElementById('ce').value.trim();if(!e||!e.includes('@')){alert("Email?");return null}return e}
 function GC(){return Math.floor(100000+Math.random()*900000).toString()}
 function S2(t){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s2').classList.add('act');document.getElementById('ms').innerText="Код";document.getElementById('i2').innerText=t;document.getElementById('vi').focus()}
 function SS(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('ss').style.display='block';document.getElementById('ms').innerText="Done"}
 function SR(em,tp,uid=null){H.unshift({id:Date.now(),email:em,date:new Date().toLocaleString('ru-RU'),type:tp,uid});localStorage.setItem('xu_h',JSON.stringify(H));RH()}
 function DL(id){if(confirm("Del?")){H=H.filter(h=>h.id!==id);localStorage.setItem('xu_h',JSON.stringify(H));RH()}}
-function RH(){const l=document.getElementById('hl');l.innerHTML='';if(!H.length){l.innerHTML='<div style="text-align:center;color:var(--m);padding:10px;font-size:.8rem">Empty</div>';return}H.forEach(i=>{const d=document.createElement('div');d.className='hist-item';let ic=i.type==='email'?'📧':i.type==='qr'?'📱':i.type==='biometric'?'👆':i.type==='nfc'?'🏷️':'❓';d.innerHTML=`<div><strong>${ic} ${i.email}</strong><br><small style="color:var(--m)">${i.date} • ${i.type.toUpperCase()}</small></div><button class="del" onclick="DL(${i.id})">×</button>`;l.appendChild(d)})}
+function RH(){
+    const l=document.getElementById('hl');l.innerHTML='';
+    if(!H.length){l.innerHTML='<div style="text-align:center;color:var(--m);padding:10px;font-size:.8rem">Empty</div>';return}
+    H.forEach(i=>{
+        const d=document.createElement('div');d.className='hist-item';
+        let ic=i.type==='email'?'📧':i.type==='qr'?'📱':i.type==='biometric'?'👆':i.type==='nfc'?'🏷️':'❓';
+        d.innerHTML=`<div><strong>${ic} ${i.email}</strong><br><small style="color:var(--m)">${i.date} • ${i.type.toUpperCase()}</small></div><button class="del" onclick="DL(${i.id})">×</button>`;
+        l.appendChild(d);
+    });
+}
+
+// --- STANDARD METHODS ---
 function SEF(){const em=VE();if(!em)return;E=em;M='email';C=GC();window.location.href=`mailto:${em}?subject=Xcortex&body=${encodeURIComponent(C)}`;S2("Mail sent")}
 function SQF(){const em=VE();if(!em)return;E=em;M='qr';C=GC();new QRCode(document.getElementById('qcc'),{text:C,width:150,height:150});document.getElementById('qvv').innerText=C.split('').join(' ');document.getElementById('qr-label').innerText="Scan code";document.getElementById('qr-action-btn').onclick=PFQ;document.getElementById('qs').classList.add('act')}
 function PFQ(){document.getElementById('qs').classList.remove('act');S2("Enter scanned code")}
 async function SBR(){const em=VE();if(!em)return;E=em;M='bio_reg';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Wait...';try{await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Xcortex",id:location.hostname},user:{id:new TextEncoder().encode(em),name:em,displayName:em},pubKeyCredParams:[{type:"public-key",alg:-7}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required"}}});SR(E,'biometric');document.getElementById('bs').innerHTML='✅ Saved';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.message}`;setTimeout(R1,3000)}}
 async function CEB(){const em=VE();if(!em)return;const su=H.find(h=>h.email===em&&h.type==='biometric');if(!su){alert("No bio reg");return}E=em;M='bio_check';document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s3').classList.add('act');document.getElementById('bs').innerHTML='Check...';try{const ac=[{type:"public-key",id:(()=>{const b=atob(su.credentialId||"");const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u.buffer})()}];await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rpId:location.hostname,allowCredentials:ac,userVerification:"required"}});const idx=H.findIndex(h=>h.id===su.id);if(idx!==-1){H[idx].date=new Date().toLocaleString('ru-RU');localStorage.setItem('xu_h',JSON.stringify(H))}document.getElementById('bs').innerHTML='✅ OK';setTimeout(SS,1000)}catch(er){document.getElementById('bs').innerHTML=`❌ ${er.name}`;setTimeout(R1,3000)}}
-async function SNFC(){const em=VE();if(!em)return;E=em;document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s4').classList.add('act');document.getElementById('ms').innerText="NFC Bind";document.getElementById('nfs').innerHTML='<span class="sc">Activating...</span>';try{if(!('NDEFReader'in window))throw new Error("No NFC");nfcReader=new NDEFReader();nfcReader.addEventListener("reading",()=>{document.getElementById('nfs').innerHTML='<span class="sc">Scanning...</span>'});nfcReader.addEventListener("message",async({serialNumber})=>{await nfcReader.stop();if(!serialNumber)throw new Error("No UID");SR(E,'nfc',serialNumber);document.getElementById('nfs').innerHTML=`<span class="sc">✅ UID: ${serialNumber.substring(0,10)}...</span>`;setTimeout(SS,1500)});nfcReader.addEventListener("error",(event)=>{document.getElementById('nfs').innerHTML=`<span class="er">❌ ${event.error.name}</span>`;setTimeout(cancelNfcScan,3000)});await nfcReader.scan()}catch(err){document.getElementById('nfs').innerHTML=`<span class="er">❌ ${err.message}</span>`;setTimeout(cancelNfcScan,3000)}}
-function cancelNfcScan(){if(nfcReader)try{nfcReader.stop()}catch(e){};R1()}
-async function startFindByUid(){if(!('NDEFReader'in window)){alert("No NFC");return}try{const r=new NDEFReader();r.addEventListener("message",async({serialNumber})=>{await r.stop();searchAndShowResult(serialNumber)});r.addEventListener("error",(e)=>alert("Err:"+e.error.name));await r.scan()}catch(err){alert("Start fail:"+err.message)}}
-function searchAndShowResult(uid){const m=H.find(i=>i.type==='nfc'&&i.uid===uid);const ro=document.getElementById('res-ov'),ud=document.getElementById('found-uid'),ed=document.getElementById('found-email');ud.innerText="UID: "+uid;if(m){ed.innerText="Client: "+m.email;ed.style.color="#0fb3a6"}else{ed.innerText="Not Found";ed.style.color="#f44"}ro.classList.add('act')}
+
+// --- INTEGRATED NFC LOGIC (Using 'reading' event for reliability) ---
+
+async function SNFC(){
+    const em=VE();if(!em)return;E=em;
+    document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));
+    document.getElementById('s4').classList.add('act');
+    document.getElementById('ms').innerText="NFC Bind";
+    document.getElementById('nfs').innerHTML='<span class="sc">Активация сканера...</span>';
+    
+    try{
+        if(!('NDEFReader'in window))throw new Error("No NFC Support");
+        
+        nfcReader=new NDEFReader();
+        
+        // КРИТИЧНО: Используем событие "reading", как в твоем рабочем коде
+        nfcReader.addEventListener("reading", async ({ serialNumber }) => {
+            console.log("Tag Detected via reading event:", serialNumber);
+            
+            // Останавливаем сканер сразу после обнаружения
+            await nfcReader.stop();
+            
+            if(serialNumber){
+                // Сохраняем привязку Email <-> UID
+                SR(E,'nfc',serialNumber);
+                document.getElementById('nfs').innerHTML=`<span class="sc">✅ UID Получен:<br>${serialNumber.substring(0,12)}...</span>`;
+                setTimeout(SS,1500);
+            } else {
+                 throw new Error("Serial Number Empty");
+            }
+        });
+
+        // Обработка ошибок чтения данных (если карта защищена, но UID мы уже получили выше)
+        nfcReader.addEventListener("readingerror", () => {
+             console.warn("Read error occurred, but checking if UID was captured...");
+             // Не сбрасываем процесс мгновенно, давая время событию reading отработать
+        });
+
+        // Запускаем сканирование
+        await nfcReader.scan();
+
+    }catch(err){
+        document.getElementById('nfs').innerHTML=`<span class="er">❌ ${err.message}</span>`;
+        setTimeout(cancelNfcScan,3000);
+    }
+}
+
+function cancelNfcScan(){
+    if(nfcReader)try{nfcReader.stop()}catch(e){};
+    R1();
+}
+
+async function startFindByUid(){
+    if(!('NDEFReader'in window)){alert("No NFC");return}
+    try{
+        const r=new NDEFReader();
+        
+        // Слушаем "reading" для поиска
+        r.addEventListener("reading", async ({ serialNumber }) => {
+            await r.stop();
+            searchAndShowResult(serialNumber);
+        });
+
+        r.addEventListener("readingerror", (e) => {
+             console.warn("Search Read Error:", e);
+        });
+
+        await r.scan();
+        
+    }catch(err){alert("Start fail:"+err.message)}
+}
+
+function searchAndShowResult(uid){
+    if(!uid){ alert("Card detected but no UID returned."); return; }
+    
+    const m=H.find(i=>i.type==='nfc'&&i.uid===uid);
+    const ro=document.getElementById('res-ov'),ud=document.getElementById('found-uid'),ed=document.getElementById('found-email');
+    ud.innerText="UID: "+uid;
+    if(m){ed.innerText="Client: "+m.email;ed.style.color="#0fb3a6"}else{ed.innerText="Not Found";ed.style.color="#f44"}
+    ro.classList.add('act');
+}
+
+// --- OTHER LOGIC ---
 function CV(){const iv=document.getElementById('vi').value.trim(),ee=document.getElementById('re');ee.classList.add('hidden');if(!C){alert("Err");return}if(iv===C){SR(E,M);SS()}else{ee.innerText="Wrong!";ee.classList.remove('hidden');document.getElementById('vi').value='';document.getElementById('vi').focus()}}
 function showOTLMenu(){document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s-otl-menu').classList.add('act');document.getElementById('ms').innerText="One-Time"}
 function initOTL(type){currentOtlType=type;document.querySelectorAll('.st').forEach(e=>e.classList.remove('act'));document.getElementById('s-otl-input').classList.add('act');document.getElementById('ms').innerText="Data";const lbl=document.getElementById('otl-lbl'),val=document.getElementById('otl-val');lbl.innerText=type==='pay'?"Amount":"Type";val.placeholder=type==='pay'?"1000":"std";val.value=''}
